@@ -1,139 +1,161 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+let participantes = [
+  {
+    nome: "Diego Fernandes",
+    email: "diego@gmail.com",
+    dataInscricao: new Date(2024, 2, 1, 19, 23),
+    dataCheckIn: new Date(2024, 2, 1, 20, 20)
+  },
+  {
+    nome: "Mayk Brito",
+    email: "mayk@gmail.com",
+    dataInscricao: new Date(2024, 2, 23, 19, 23),
+    dataCheckIn: null
+  },
+  {
+    nome: "Ana Souza",
+    email: "ana@gmail.com",
+    dataInscricao: new Date(2024, 0, 3, 19, 23),
+    dataCheckIn: new Date(2024, 0, 4, 20, 20)
+  },
+  {
+    nome: "João Silva",
+    email: "joao@gmail.com",
+    dataInscricao: new Date(2023, 11, 4, 19, 23),
+    dataCheckIn: new Date(2023, 11, 5, 20, 20)
+  },
+  {
+    nome: "Maria Oliveira",
+    email: "maria@gmail.com",
+    dataInscricao: new Date(2023, 10, 5, 19, 23),
+    dataCheckIn: null
+  },
+  {
+    nome: "Pedro Santos",
+    email: "pedro@gmail.com",
+    dataInscricao: new Date(2023, 9, 6, 19, 23),
+    dataCheckIn: new Date(2023, 9, 7, 20, 20)
+  },
+  {
+    nome: "Carla Lima",
+    email: "carla@gmail.com",
+    dataInscricao: new Date(2023, 8, 7, 19, 23),
+    dataCheckIn: new Date(2023, 8, 8, 20, 20)
+  },
+  {
+    nome: "Lucas Sousa",
+    email: "lucas@gmail.com",
+    dataInscricao: new Date(2023, 7, 8, 19, 23),
+    dataCheckIn: new Date(2023, 7, 9, 20, 20)
+  },
+  {
+    nome: "Paula Costa",
+    email: "paula@gmail.com",
+    dataInscricao: new Date(2023, 6, 9, 19, 23),
+    dataCheckIn: null
+  },
+  {
+    nome: "Gabriel Almeida",
+    email: "gabriel@gmail.com",
+    dataInscricao: new Date(2023, 5, 10, 19, 23),
+    dataCheckIn: null
+  }
+];
+
+const criarNovoParticipante = (participante) => {
+  const dataInscricao = dayjs(Date.now())
+  .to(participante.dataInscricao)
+
+  let dataCheckIn = dayjs(Date.now())
+  .to(participante.dataCheckIn)
+  
+  if(participante.dataCheckIn == null) {
+    dataCheckIn = `
+      <button
+        data-email="${participante.email}"
+        onclick="fazerCheckIn(event)"
+      >
+        Confirmar check-in
+      </button>
+    `
+  }
+
+  return `
+  <tr>
+    <td>
+      <strong>
+        ${participante.nome}
+      </strong>
+      <br>
+      <small>
+        ${participante.email}
+      </small>
+    </td>
+    <td>${dataInscricao}</td>
+    <td>${dataCheckIn}</td>
+  </tr>
+  `
 }
 
-:root {
-  --border: 1px solid #ffffff1a;
+const atualizarLista = (participantes) => {
+  let output = ""
+  for(let participante of participantes) {
+    output = output + criarNovoParticipante(participante)
+  }
+
+  // substituir informação do HTML
+  document
+  .querySelector('tbody')
+  .innerHTML = output
 }
 
-body,
-table,
-input,
-button {
-  font: 300 16px/140% 'Roboto', sans-serif;
+atualizarLista(participantes)
+
+const adicionarParticipante = (event) => {
+  event.preventDefault()
+
+  const dadosDoFormulario = new FormData(event.target)
+
+  const participante = {
+    nome: dadosDoFormulario.get('nome'),
+    email: dadosDoFormulario.get('email'),
+    dataInscricao: new Date(),
+    dataCheckIn: null  
+  }
+
+  // verificar se o particpante já existe
+  const participanteExiste = participantes.find(
+    (p) => p.email == participante.email
+  )
+
+  if(participanteExiste) {
+    alert('Email já cadastrado!')
+    return
+  }
+
+  participantes = [participante, ...participantes]
+  atualizarLista(participantes)
+
+  // limpar o formulario
+  event.target.querySelector('[name="nome"]').value = ""
+  event.target.querySelector('[name="email"]').value = ""
 }
 
-body {
-  background-color: #121214;
-  color: #ffffff;
-}
+const fazerCheckIn = (event) => {
+  // confirmar se realmente quer o check-in
+  const mensagemConfirmacao = 'Tem certeza que deseja fazer o check-in?' 
 
-.container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 20px 32px;
-}
+  if(confirm(mensagemConfirmacao) == false) {
+    return
+  }
 
-header {
-  padding: 20px 0;
-}
+  // encontrar o participante dentro da lista
+  const participante = participantes.find(
+    (p) => p.email == event.target.dataset.email  
+  )
+  
+  // atualizar o check-in do participante
+  participante.dataCheckIn = new Date()
 
-form {
-  border: var(--border);
-  border-inline: none;
-  padding: 20px 0;
-}
-
-fieldset {
-  border: none;
-}
-
-fieldset>div {
-  display: flex;
-  gap: 12px;
-}
-
-.input-wrapper {
-  flex: 1;
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  border: var(--border);
-  border-radius: 10px;
-
-  padding: 8px 12px;
-
-  font: 400 14px/150% 'Roboto', sans-serif;
-  color: #C4C4CC;
-}
-
-input {
-  all: unset;
-}
-
-fieldset legend,
-section h2 {
-  font: 700 16px/140% 'Roboto', sans-serif;
-  color: #E1E1E6;
-  padding-bottom: 16px;
-}
-
-fieldset button {
-  width: fit-content;
-  border: 0;
-  background: #F48F56;
-  border-radius: 10px;
-  padding: 7px 20px;
-
-  font: 700 12px/24px 'Roboto', sans-serif;
-  color: #00292E;
-}
-
-fieldset button:hover {
-  background: #f37c37;
-}
-
-.lista-participantes {
-  padding: 20px 0;
-}
-
-.lista-participantes > div {
-  border: var(--border);
-  border-radius: 8px;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-table thead {
-  font-size: 14px;
-  line-height: 16px;
-}
-
-thead th,
-tbody td {
-  padding: 12px 16px;
-}
-
-tbody td {
-  border-top: var(--border);
-  font-size: 13px;
-  line-height: 15px;
-  color: #c4c4cc;
-}
-
-tbody td strong {
-  color: white;
-  font-size: 14px;
-  line-height: 16px;
-  font-weight: 600;
-}
-
-tbody td small {
-  font-size: 12px;
-  line-height: 16px;
-}
-
-tbody td button {
-  all: unset;
-  color: #9FF9CC;
-}
-
-tbody td button:hover {
-  text-decoration: underline;
+  // atualizar a lista de participantes
+  atualizarLista(participantes)
 }
